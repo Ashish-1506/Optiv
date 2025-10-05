@@ -15,8 +15,6 @@ from pathlib import Path
 from typing import Dict, Any, List
 from PIL import Image
 import io
-import pytesseract
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 # Try to import OCR functionality
 try:
