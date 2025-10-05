@@ -27,40 +27,55 @@ def configure_api_with_key(api_key: str) -> bool:
         return False
 
 
-def create_security_analysis_prompt(cleansed_text: str) -> str:
-    """Creates the specific prompt for the Gemini model to get the desired output format."""
+def create_security_analysis_prompt(initial_description: str, cleansed_text: str) -> str:
+    """
+    Creates the final, fine-tuned prompt to generate output matching the Optiv style.
+    """
     prompt = f"""
-    You are a senior cybersecurity analyst at Optiv. Your task is to analyze a cleansed document and provide a summary for a presentation, exactly matching the company's required style.
+    You are a senior cybersecurity analyst at Optiv. Your task is to analyze data from a cleansed file and provide a summary for a presentation, exactly matching the company's required style.
 
-    Analyze the following cleansed document text. Based ONLY on the provided text, generate two specific outputs in the exact format shown below:
+    You will be given two pieces of information:
+    1.  *Initial Scene Description:* A brief caption of what the original image or document looks like.
+    2.  *Transcribed Text:* The text content extracted from the file.
 
-    **1. File Description:**
-    Provide a single, literal, and objective sentence describing what the document *is*. AVOID summarizing its contents or interpreting its meaning. For example, instead of "This summarizes meetings," say "A text document containing meeting notes and PII."
+    Synthesize these two inputs to generate the final outputs in the exact format shown below.
 
-    **2. Key Findings:**
-    Provide 2-4 concise bullet points. Each bullet point must be a distinct security observation, risk, or implication that a consultant would find valuable.
+    *1. File Description:*
+    Your goal is to create a description that starts directly with the name of the primary subject. AVOID starting with phrases like "This file shows". Be direct and professional.
+    For example: "A paper-based visitor logbook where individuals..."
+    Combine the scene description and transcribed text into a single, concise sentence that follows this direct style.
+
+    *2. Key Findings:*
+    Provide 2-3 BRIEF bullet points analyzing the security characteristics of the system or document shown. Follow this specific structure:
+    - *First, identify the system type and its primary technology* (e.g., "Digital access control system using ID/employee cards," "Manual entry system dependent on handwriting").
+    - *Next, describe its key function or a security benefit* (e.g., "Automates entry tracking by time-stamping," "Provides accurate, automated attendance logs").
+    - *Finally, state its primary dependency or an inherent security risk* (e.g., "Dependent on card validity and system integrity," "Prone to errors and falsification").
+    Do NOT make judgments about the specific person or action in the scene. Analyze the system's general properties.
 
     ---
-    CLEANSED DOCUMENT TEXT:
+    INITIAL SCENE DESCRIPTION:
+    {initial_description}
+    ---
+    TRANSCRIBED TEXT:
     {cleansed_text}
     ---
 
-    **REQUIRED OUTPUT FORMAT (Use '###' as a separator):**
-    File Description: [Your single, literal sentence description here]
+    *REQUIRED OUTPUT FORMAT (Use '###' as a separator):*
+    File Description: [Your single, direct, subject-first sentence here]
     ###
     Key Findings:
-    - [Finding 1]
-    - [Finding 2]
-    - [Finding 3]
+    - [Brief finding 1]
+    - [Brief finding 2]
+    - [Brief finding 3]
     """
     return prompt
 
 
-def analyze_cleansed_text(cleansed_text: str) -> str:
-    """Sends the cleansed text to the Google Gemini model and returns the analysis."""
+def analyze_cleansed_text(initial_description: str, cleansed_text: str) -> str:
+    """Sends the cleansed text and description to the Google Gemini model and returns the analysis."""
     try:
         model = genai.GenerativeModel(MODEL_NAME)
-        prompt_to_send = create_security_analysis_prompt(cleansed_text)
+        prompt_to_send = create_security_analysis_prompt(initial_description, cleansed_text)
         response = model.generate_content(prompt_to_send)
         return response.text.strip()
     except Exception as e:
@@ -106,12 +121,14 @@ def main():
         # Prepare content for analysis
         file_name = data.get("file_name", fname)
         file_type = data.get("file_type", "unknown")
-        cleansed_text = data.get("raw_text", "") + "\n" + data.get("file_description", "")
+        file_description = data.get("file_description", "")
+        raw_text = data.get("raw_text", "")
 
         # Send to model
         print("[INFO] Sending to Gemini for analysis...")
-        raw_output = analyze_cleansed_text(cleansed_text)
+        raw_output = analyze_cleansed_text(file_description, raw_text)
         parsed_output = parse_analysis_output(raw_output)
+
 
         # Build final structured result
         final_result = {
