@@ -1,11 +1,31 @@
-pandas
-python-pptx
-pytesseract
-opencv-python
-Pillow
-pdf2image
-pdfplumber
-PyMuPDF
-spacy
-jupyter
-pytest
+# === Core utilities ===
+pandas>=2.0.0
+numpy>=1.24.0
+openpyxl>=3.1.0
+
+# === File extraction ===
+pdfplumber>=0.10.0
+pdf2image>=1.17.0
+Pillow>=10.0.0
+python-pptx>=0.6.23
+
+# === OCR and image processing ===
+pytesseract>=0.3.10
+opencv-python>=4.9.0
+
+# === NLP and cleansing ===
+spacy>=3.7.2
+
+# === Vision-Language models (image captioning) ===
+transformers>=4.39.0
+torch>=2.2.0
+
+# === AI Analysis (Gemini API) ===
+google-generativeai>=0.3.2
+
+# === Streamlit dashboard ===
+streamlit>=1.32.0
+
+# === Misc utilities ===
+tqdm>=4.66.0
+typing-extensions>=4.9.0
