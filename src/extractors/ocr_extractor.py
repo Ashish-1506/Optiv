@@ -1,7 +1,7 @@
 import os
 import cv2
 import pytesseract
-pytesseract.pytesseract.tesseract_cmd = "Path of tesseract.exe"
+pytesseract.pytesseract.tesseract_cmd = "Path of tesseract.exe" #like r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 import numpy as np
 from pdf2image import convert_from_path
