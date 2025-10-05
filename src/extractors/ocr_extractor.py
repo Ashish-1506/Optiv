@@ -12,7 +12,7 @@ import json
 # ---------------------------
 # Configuration
 # ---------------------------
-POPPLER_PATH = r'C:\poppler\Library\bin'
+POPPLER_PATH = "Give Poppler path" #like r'C:\poppler\Library\bin'
 INPUT_DIR = '../data/raw'
 OUTPUT_DIR = '../data/extracted'
 os.makedirs(OUTPUT_DIR, exist_ok=True)
