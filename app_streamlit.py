@@ -193,8 +193,9 @@ def analyze_and_save(cleansed_dict, api_key: str, target_dir=OUTPUTS_DIR):
     configured = llm_analysis.configure_api_with_key(api_key)
     if not configured:
         raise RuntimeError("Could not configure Gemini API with provided key.")
-    cleansed_text = (cleansed_dict.get("raw_text","") or "") + "\n" + (cleansed_dict.get("file_description","") or "")
-    raw_out = llm_analysis.analyze_cleansed_text(cleansed_text)
+    file_description = cleansed_dict.get("file_description", "")
+    raw_text = cleansed_dict.get("raw_text", "")
+    raw_out = llm_analysis.analyze_cleansed_text(file_description, raw_text)
     parsed = llm_analysis.parse_analysis_output(raw_out)
     final = {
         "file_name": cleansed_dict.get("file_name"),
@@ -228,10 +229,12 @@ def run_pipeline_for_file(saved_path: str, api_key: str=None):
             raw_text = res.get("text","")
             extracted_path, extracted_result = normalize_and_save_extracted(fname, ext, raw_text, "", {})
     elif ext in [".png", ".jpg", ".jpeg"]:
-        text, w, h = ocr_extractor.ocr_image(saved_path)
-        desc = ocr_extractor.get_scene_description(saved_path)
-        metadata = {"resolution": f"{w}x{h}"}
+        result = ocr_extractor.process_single_image(saved_path)
+        text = result.get("text", "")
+        desc = result.get("description", "")
+        metadata = result.get("metadata", {})
         extracted_path, extracted_result = normalize_and_save_extracted(fname, ext, text, desc, metadata)
+
     else:
         raise ValueError("Unsupported file type: " + ext)
     
