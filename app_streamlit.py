@@ -7,7 +7,7 @@ import streamlit as st
 import pandas as pd
 
 # OCR path
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+pytesseract.pytesseract.tesseract_cmd = "Path of tesseract.exe" #like r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 # ensure `src` is importable when running from project root
 ROOT = os.path.abspath(os.getcwd())
@@ -245,3 +245,4 @@ if uploaded:
                 st.error(f"❌ Pipeline failed: {str(e)}")
 else:
     st.markdown("<p style='text-align:center; color:#999;'>Upload a file above to begin analysis.</p>", unsafe_allow_html=True)
+
